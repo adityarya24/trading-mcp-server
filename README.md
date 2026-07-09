@@ -62,10 +62,6 @@ services/trading_mcp/   # MCP server + tools + SQLite
 scripts/          # smoke_mcp_client.py
 ```
 
-## References
-
-Design docs (OpenClaw workspace): `agents/arjun/proposals/trading-mcp-server/` — `PROPOSAL.md`, `CONTENT_SPEC.md`.
-
 ## License
 
 MIT — see [LICENSE](LICENSE) (add if not yet committed).

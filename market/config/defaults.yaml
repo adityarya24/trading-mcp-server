@@ -1,0 +1,78 @@
+# NSE/BSE Holiday Calendar 2026
+# Source: NSE official holiday list
+# Format: YYYY-MM-DD
+
+holidays:
+  - date: "2026-01-26"
+    reason: "Republic Day"
+    segments_closed: ["equity", "fno", "currency"]
+  - date: "2026-02-26"
+    reason: "Mahashivratri"
+    segments_closed: ["equity", "fno", "currency"]
+  - date: "2026-03-06"
+    reason: "Holi"
+    segments_closed: ["equity", "fno", "currency"]
+  - date: "2026-03-20"
+    reason: "Id-Ul-Fitr (Ramzan Eid)"
+    segments_closed: ["equity", "fno", "currency"]
+  - date: "2026-04-01"
+    reason: "Annual Bank Closing"
+    segments_closed: ["equity", "fno", "currency"]
+  - date: "2026-04-14"
+    reason: "Dr. Baba Saheb Ambedkar Jayanti / Tamil New Year"
+    segments_closed: ["equity", "fno", "currency"]
+  - date: "2026-04-20"
+    reason: "Mahavir Jayanti"
+    segments_closed: ["equity", "fno", "currency"]
+  - date: "2026-05-01"
+    reason: "Maharashtra Day"
+    segments_closed: ["equity", "fno", "currency"]
+  - date: "2026-05-27"
+    reason: "Buddha Purnima"
+    segments_closed: ["equity", "fno", "currency"]
+  - date: "2026-06-26"
+    reason: "Muharram"
+    segments_closed: ["equity", "fno", "currency"]
+  - date: "2026-08-15"
+    reason: "Independence Day"
+    segments_closed: ["equity", "fno", "currency"]
+  - date: "2026-08-27"
+    reason: "Ganesh Chaturthi"
+    segments_closed: ["equity", "fno", "currency"]
+  - date: "2026-10-02"
+    reason: "Mahatma Gandhi Jayanti"
+    segments_closed: ["equity", "fno", "currency"]
+  - date: "2026-10-20"
+    reason: "Dasara"
+    segments_closed: ["equity", "fno", "currency"]
+  - date: "2026-11-09"
+    reason: "Diwali (Laxmi Pujan)"
+    segments_closed: ["equity", "fno", "currency"]
+  - date: "2026-11-10"
+    reason: "Diwali Balipratipada"
+    segments_closed: ["equity", "fno"]
+  - date: "2026-11-23"
+    reason: "Guru Nanak Jayanti"
+    segments_closed: ["equity", "fno", "currency"]
+  - date: "2026-12-25"
+    reason: "Christmas"
+    segments_closed: ["equity", "fno", "currency"]
+
+# Expiry day schedule
+expiry:
+  nifty: "tuesday"     # Nifty weekly expiry — Tuesday
+  sensex: "thursday"   # Sensex expiry — Thursday
+  banknifty: "tuesday" # Bank Nifty weekly expiry — Tuesday (typically)
+
+# Market timings (IST)
+timings:
+  equity:
+    pre_open: "09:00"
+    open: "09:15"
+    close: "15:30"
+  fno:
+    open: "09:15"
+    close: "15:30"
+
+# Trading days
+trading_days: ["monday", "tuesday", "wednesday", "thursday", "friday"]

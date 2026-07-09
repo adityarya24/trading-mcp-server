@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <title>Morning Brief — {{ report.report_date }}</title>
+  <style>{% include 'report_base.css' %}</style>
+</head>
+<body>
+  <h1>🏹 Morning Brief</h1>
+  <p class="meta">{{ report.report_date }} · Generated {{ report.generated_at }}</p>
+  {% if report.market_status.today_expiry %}
+  <p><span class="badge">Expiry: {{ report.market_status.expiry_instrument }}</span></p>
+  {% endif %}
+
+  <h2>Market Pulse</h2>
+  <table>
+    <tr><th>Symbol</th><th>LTP</th><th>Change%</th><th>Prev Close</th></tr>
+    {% for row in report.sections.market_pulse %}
+    <tr>
+      <td>{{ row.symbol }}</td>
+      <td>{{ row.ltp }}</td>
+      <td>{{ row.change_pct }}</td>
+      <td>{{ row.prev_close }}</td>
+    </tr>
+    {% endfor %}
+  </table>
+
+  <h2>Global Cues</h2>
+  <table>
+    <tr><th>Label</th><th>LTP</th><th>Change%</th></tr>
+    {% for row in report.sections.global_cues %}
+    <tr><td>{{ row.label }}</td><td>{{ row.ltp }}</td><td>{{ row.change_pct }}</td></tr>
+    {% endfor %}
+  </table>
+
+  <h2>FII / DII (NSE provisional)</h2>
+  {% set fii = report.sections.fii_dii %}
+  {% if fii.error %}
+  <p>{{ fii.error }}</p>
+  {% else %}
+  <table>
+    <tr><th>Participant</th><th>Session</th><th>Net (₹ Cr)</th></tr>
+    {% if fii.fii %}<tr><td>FII/FPI</td><td>{{ fii.fii.date }}</td><td>{{ fii.fii.net_value_cr }}</td></tr>{% endif %}
+    {% if fii.dii %}<tr><td>DII</td><td>{{ fii.dii.date }}</td><td>{{ fii.dii.net_value_cr }}</td></tr>{% endif %}
+  </table>
+  {% endif %}
+
+  <h2>Technical Levels (Nifty)</h2>
+  {% set tech = report.sections.technical_levels %}
+  {% if tech.levels %}
+  <table>
+    <tr><th>Level</th><th>Value</th></tr>
+    {% for k, v in tech.levels.items() %}<tr><td>{{ k }}</td><td>{{ v }}</td></tr>{% endfor %}
+    <tr><td>20 DMA</td><td>{{ tech.dma_20 }}</td></tr>
+    <tr><td>50 DMA</td><td>{{ tech.dma_50 }}</td></tr>
+  </table>
+  {% else %}
+  <p>Insufficient history for pivot/DMA.</p>
+  {% endif %}
+
+  <p class="meta">{{ report.sections.gift_nifty_note }}</p>
+  <p class="disclaimer">{{ report.disclaimer }}</p>
+</body>
+</html>

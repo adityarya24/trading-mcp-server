@@ -1,0 +1,38 @@
+[build-system]
+requires = ["setuptools>=77.0.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "trading-mcp"
+version = "0.2.0"
+description = "Market intelligence MCP server — plug-and-play trading analyst for any MCP-compatible agent"
+requires-python = ">=3.11"
+dependencies = [
+    "mcp>=1.27.0",
+    "yfinance>=0.2.40",
+    "pandas>=2.0",
+    "pyyaml>=6.0",
+    "httpx>=0.27.0",
+    "jinja2>=3.1.0",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8.0", "pytest-asyncio>=0.23", "ruff>=0.4.0"]
+pdf = ["playwright>=1.40.0", "reportlab>=4.0.0"]
+
+[project.scripts]
+trading-mcp = "services.trading_mcp.server:main"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["market*", "services*"]
+
+[tool.setuptools.package-data]
+market = ["config/*.yaml", "data/*.json", "templates/*.html", "templates/*.css"]
+
+[tool.pytest.ini_options]
+testpaths = ["market/tests"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"

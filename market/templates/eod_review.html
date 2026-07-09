@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <title>EOD Review — {{ report.report_date }}</title>
+  <style>{% include 'report_base.css' %}</style>
+</head>
+<body>
+  <h1>EOD Review</h1>
+  <p class="meta">{{ report.report_date }} · Generated {{ report.generated_at }}</p>
+
+  <h2>Index Scorecard</h2>
+  <table>
+    <tr><th>Symbol</th><th>LTP</th><th>Open</th><th>High</th><th>Low</th><th>Change%</th></tr>
+    {% for row in report.sections.index_scorecard %}
+    <tr>
+      <td>{{ row.symbol }}</td><td>{{ row.ltp }}</td><td>{{ row.open }}</td>
+      <td>{{ row.high }}</td><td>{{ row.low }}</td><td>{{ row.change_pct }}</td>
+    </tr>
+    {% endfor %}
+  </table>
+
+  <h2>FII / DII</h2>
+  {% set fii = report.sections.fii_dii %}
+  {% if fii.error %}<p>{{ fii.error }}</p>{% else %}
+  <table>
+    <tr><th>Participant</th><th>Net (₹ Cr)</th></tr>
+    {% if fii.fii %}<tr><td>FII/FPI</td><td>{{ fii.fii.net_value_cr }}</td></tr>{% endif %}
+    {% if fii.dii %}<tr><td>DII</td><td>{{ fii.dii.net_value_cr }}</td></tr>{% endif %}
+  </table>
+  {% endif %}
+
+  <h2>Journal ({{ report.sections.journal.date }})</h2>
+  <p>Trades logged: {{ report.sections.journal.count }}</p>
+  {% if report.sections.journal.trades %}
+  <table>
+    <tr><th>ID</th><th>Symbol</th><th>Dir</th><th>Entry</th><th>Qty</th><th>Status</th></tr>
+    {% for t in report.sections.journal.trades %}
+    <tr>
+      <td>{{ t.trade_id }}</td><td>{{ t.symbol }}</td><td>{{ t.direction }}</td>
+      <td>{{ t.entry_price }}</td><td>{{ t.quantity }}</td><td>{{ t.status }}</td>
+    </tr>
+    {% endfor %}
+  </table>
+  {% endif %}
+
+  <p class="disclaimer">{{ report.disclaimer }}</p>
+</body>
+</html>

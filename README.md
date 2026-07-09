@@ -40,10 +40,11 @@ python scripts/smoke_mcp_client.py      # integration smoke (network)
 | `TRADING_PDF_RENDERER=html` | Playwright + Chromium (default in Docker) |
 | `TRADING_PDF_RENDERER=reportlab` | In-process fallback (CI / minimal installs) |
 | `TRADING_CHROMIUM_EXECUTABLE` | Path to Chromium binary |
+| `TRADING_MCP_HOME` | Journal DB + PDF output root (default `~/.trading-mcp/`) |
 
 ```bash
 docker build -t trading-mcp .
-docker run -i trading-mcp
+docker run -i -v trading_mcp_data:/app/data trading-mcp
 ```
 
 ## Development
@@ -65,4 +66,4 @@ scripts/          # smoke_mcp_client.py
 
 ## License
 
-MIT — see [LICENSE](LICENSE) (add if not yet committed).
+MIT — see [LICENSE](LICENSE).

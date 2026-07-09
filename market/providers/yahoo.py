@@ -13,7 +13,7 @@ from market.providers.option_analytics import (
     highest_oi_strike,
     strikes_snapshot,
 )
-from services.trading_mcp.models import Candle, Quote
+from market.models import Candle, Quote
 
 from .base import MarketDataProvider
 
@@ -77,18 +77,18 @@ class YahooFinanceProvider(MarketDataProvider):
             change_pct = info.get("regularMarketChangePercent")
             return Quote(
                 symbol=symbol,
-                ltp=round(ltp, 2) if ltp else 0.0,
+                ltp=round(ltp, 2) if ltp is not None else 0.0,
                 open=info.get("regularMarketOpen"),
                 high=info.get("dayHigh"),
                 low=info.get("dayLow"),
-                prev_close=round(prev_close, 2) if prev_close else None,
-                change=round(change, 2) if change else None,
-                change_pct=round(change_pct, 4) if change_pct else None,
+                prev_close=round(prev_close, 2) if prev_close is not None else None,
+                change=round(change, 2) if change is not None else None,
+                change_pct=round(change_pct, 4) if change_pct is not None else None,
                 volume=info.get("volume"),
                 currency=info.get("currency", "INR"),
             )
-        except Exception:
-            return Quote(symbol=symbol, ltp=0.0, currency="N/A")
+        except Exception as exc:
+            return Quote(symbol=symbol, ltp=0.0, currency="N/A", error=str(exc))
 
     def get_gift_nifty_quote(self) -> dict[str, Any]:
         """GIFT Nifty proxy: Yahoo has no SGXNIFTY; use Nifty pre-market/spot on ^NSEI."""
@@ -166,7 +166,7 @@ class YahooFinanceProvider(MarketDataProvider):
         chain = ticker.option_chain(chosen)
         calls = chain.calls
         puts = chain.puts
-        return {
+        result = {
             "symbol": symbol,
             "ticker": ticker_str,
             "available": True,
@@ -179,6 +179,9 @@ class YahooFinanceProvider(MarketDataProvider):
             "strikes": strikes_snapshot(calls, puts),
             "disclaimer": "OI/IV analytics only — not trading advice.",
         }
+        if expiry and expiry not in expiries:
+            result["note"] = f"Requested expiry {expiry} unavailable; used {chosen}"
+        return result
 
     def get_sector_indices(self) -> list[dict[str, Any]]:
         rows: list[dict[str, Any]] = []

@@ -1,5 +1,7 @@
 from pathlib import Path
 
+import pytest
+
 from market.reports.pdf_export import export_report_pdf, render_html
 
 
@@ -37,3 +39,12 @@ def test_reportlab_pdf_fallback(tmp_path: Path):
     meta = export_report_pdf(SAMPLE, out, renderer="reportlab")
     assert meta["renderer"] == "reportlab"
     assert out.exists() and out.stat().st_size > 500
+
+
+def test_explicit_html_renderer_raises_without_chromium(tmp_path: Path, monkeypatch):
+    def _boom(*args, **kwargs):
+        raise RuntimeError("no chromium")
+
+    monkeypatch.setattr("market.reports.pdf_export._html_to_chromium_pdf", _boom)
+    with pytest.raises(RuntimeError, match="no chromium"):
+        export_report_pdf(SAMPLE, tmp_path / "x.pdf", renderer="html")

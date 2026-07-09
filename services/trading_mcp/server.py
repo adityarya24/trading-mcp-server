@@ -22,7 +22,7 @@ from mcp.server.stdio import stdio_server
 from .tools import TOOLS
 
 SERVER_NAME = "trading-mcp"
-SERVER_VERSION = "0.2.1"
+SERVER_VERSION = "0.2.2"
 
 
 def list_tool_names() -> list[str]:

@@ -1,17 +1,21 @@
 """SQLite-backed storage for the trading MCP service."""
 from __future__ import annotations
 
+import os
 import sqlite3
-from datetime import datetime, timezone
 from pathlib import Path
 
-from .models import Trade
+from market.models import Trade
 
-DEFAULT_DB_PATH = Path("data/trading_mcp.sqlite3")
+
+def trading_mcp_home() -> Path:
+    home = Path(os.environ.get("TRADING_MCP_HOME", Path.home() / ".trading-mcp"))
+    home.mkdir(parents=True, exist_ok=True)
+    return home
 
 
 def default_db_path() -> Path:
-    return DEFAULT_DB_PATH
+    return trading_mcp_home() / "trading_mcp.sqlite3"
 
 
 SCHEMA = """
@@ -58,10 +62,6 @@ def _connect(db_path: Path | str) -> sqlite3.Connection:
     conn.row_factory = sqlite3.Row
     conn.execute("PRAGMA foreign_keys = ON")
     return conn
-
-
-def _now_iso() -> str:
-    return datetime.now(timezone.utc).isoformat(timespec="seconds")
 
 
 def init_db(db_path: Path | str) -> None:

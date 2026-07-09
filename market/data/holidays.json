@@ -1,0 +1,20 @@
+[
+  {"date": "2026-01-26", "reason": "Republic Day", "closed": ["equity", "fno", "currency"]},
+  {"date": "2026-02-26", "reason": "Mahashivratri", "closed": ["equity", "fno", "currency"]},
+  {"date": "2026-03-06", "reason": "Holi", "closed": ["equity", "fno", "currency"]},
+  {"date": "2026-03-20", "reason": "Id-Ul-Fitr (Ramzan Eid)", "closed": ["equity", "fno", "currency"]},
+  {"date": "2026-04-01", "reason": "Annual Bank Closing", "closed": ["equity", "fno", "currency"]},
+  {"date": "2026-04-14", "reason": "Dr. Baba Saheb Ambedkar Jayanti", "closed": ["equity", "fno", "currency"]},
+  {"date": "2026-04-20", "reason": "Mahavir Jayanti", "closed": ["equity", "fno", "currency"]},
+  {"date": "2026-05-01", "reason": "Maharashtra Day", "closed": ["equity", "fno", "currency"]},
+  {"date": "2026-05-27", "reason": "Buddha Purnima", "closed": ["equity", "fno", "currency"]},
+  {"date": "2026-06-26", "reason": "Muharram", "closed": ["equity", "fno", "currency"]},
+  {"date": "2026-08-15", "reason": "Independence Day", "closed": ["equity", "fno", "currency"]},
+  {"date": "2026-08-27", "reason": "Ganesh Chaturthi", "closed": ["equity", "fno", "currency"]},
+  {"date": "2026-10-02", "reason": "Mahatma Gandhi Jayanti", "closed": ["equity", "fno", "currency"]},
+  {"date": "2026-10-20", "reason": "Dasara", "closed": ["equity", "fno", "currency"]},
+  {"date": "2026-11-09", "reason": "Diwali (Laxmi Pujan)", "closed": ["equity", "fno", "currency"]},
+  {"date": "2026-11-10", "reason": "Diwali Balipratipada", "closed": ["equity", "fno"]},
+  {"date": "2026-11-23", "reason": "Guru Nanak Jayanti", "closed": ["equity", "fno", "currency"]},
+  {"date": "2026-12-25", "reason": "Christmas", "closed": ["equity", "fno", "currency"]}
+]

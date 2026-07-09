@@ -3,6 +3,9 @@ from __future__ import annotations
 
 from datetime import date, datetime
 from typing import Any
+from zoneinfo import ZoneInfo
+
+IST = ZoneInfo("Asia/Kolkata")
 
 SEBI_DISCLAIMER = (
     "For informational purposes only. Not investment advice. "
@@ -11,7 +14,7 @@ SEBI_DISCLAIMER = (
 
 
 def report_timestamp_ist() -> str:
-    return datetime.now().strftime("%Y-%m-%d %H:%M:%S IST")
+    return datetime.now(IST).strftime("%Y-%m-%d %H:%M:%S IST")
 
 
 def pivot_levels(high: float, low: float, close: float) -> dict[str, float]:

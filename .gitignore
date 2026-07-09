@@ -3,7 +3,7 @@ __pycache__/
 *.so
 .venv/
 venv/
-data/
+/data/
 *.sqlite3
 *.sqlite
 dist/

@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from datetime import date
+
 from market.reports import morning_brief as mb_mod
 from market.reports import eod_review as eod_mod
 from market.tests.conftest import FakeProvider
@@ -49,7 +51,7 @@ def test_build_eod_review_includes_journal(monkeypatch, fake_provider, tmp_path)
         quantity=25,
         db_path=db,
     )
-    report = eod_mod.build_eod_review("2026-07-09", db_path=db)
+    report = eod_mod.build_eod_review(date.today().isoformat(), db_path=db)
     assert report["report_type"] == "eod_review"
     assert report["sections"]["journal"]["count"] == 1
     assert "sector_performance" in report["sections"]

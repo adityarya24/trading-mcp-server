@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from datetime import date
+
 import services.trading_mcp.tools as tools_mod
 from services.trading_mcp.server import list_tool_names
 
@@ -33,7 +35,8 @@ def test_log_and_journal_roundtrip(tmp_path, monkeypatch):
     assert logged["status"] == "logged"
     trade_id = logged["trade_id"]
 
-    journal = tools_mod.get_journal_tool("2026-07-09", "2026-07-09", db_path=db)
+    today = date.today().isoformat()
+    journal = tools_mod.get_journal_tool(today, today, db_path=db)
     assert journal["count"] == 1
     assert journal["trades"][0]["trade_id"] == trade_id
 

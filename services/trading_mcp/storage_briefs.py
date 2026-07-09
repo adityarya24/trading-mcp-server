@@ -3,15 +3,12 @@ from __future__ import annotations
 
 import json
 import uuid
-from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
+from market.models import now_iso_utc
+
 from .storage import _connect, init_db
-
-
-def _now_iso() -> str:
-    return datetime.now(timezone.utc).isoformat(timespec="seconds")
 
 
 def insert_brief(
@@ -34,7 +31,7 @@ def insert_brief(
                 report["report_date"],
                 json.dumps(report, ensure_ascii=False),
                 pdf_path,
-                _now_iso(),
+                now_iso_utc(),
             ),
         )
         conn.commit()

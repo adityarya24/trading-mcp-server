@@ -1,0 +1,45 @@
+from __future__ import annotations
+
+from market.reports import morning_brief as mb_mod
+from market.reports import eod_review as eod_mod
+
+
+def test_build_morning_brief_structure(monkeypatch, fake_provider, sample_fii_dii_payload):
+    monkeypatch.setattr(mb_mod, "YahooFinanceProvider", lambda: fake_provider)
+    monkeypatch.setattr(
+        mb_mod,
+        "fetch_fii_dii_trade",
+        lambda **kwargs: {
+            "session_date": "08-Jul-2026",
+            "fii": {"date": "08-Jul-2026", "net_value_cr": 1.0},
+            "dii": {"date": "08-Jul-2026", "net_value_cr": 2.0},
+        },
+    )
+    report = mb_mod.build_morning_brief("2026-07-09")
+    assert report["report_type"] == "morning_brief"
+    assert report["report_date"] == "2026-07-09"
+    assert len(report["sections"]["market_pulse"]) == 4
+    assert report["sections"]["technical_levels"]["levels"] is not None
+    assert "disclaimer" in report
+
+
+def test_build_eod_review_includes_journal(monkeypatch, fake_provider, tmp_path):
+    monkeypatch.setattr(eod_mod, "YahooFinanceProvider", lambda: fake_provider)
+    monkeypatch.setattr(
+        eod_mod,
+        "fetch_fii_dii_trade",
+        lambda **kwargs: {"fii": {"net_value_cr": 0}, "dii": {"net_value_cr": 0}},
+    )
+    db = tmp_path / "test.sqlite3"
+    from services.trading_mcp.tools import log_trade_tool
+
+    log_trade_tool(
+        symbol="NIFTY 50",
+        direction="LONG",
+        entry_price=24000,
+        quantity=25,
+        db_path=db,
+    )
+    report = eod_mod.build_eod_review("2026-07-09", db_path=db)
+    assert report["report_type"] == "eod_review"
+    assert report["sections"]["journal"]["count"] == 1

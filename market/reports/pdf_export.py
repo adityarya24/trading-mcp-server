@@ -48,6 +48,7 @@ def export_report_pdf(
     out = Path(output_path)
     out.parent.mkdir(parents=True, exist_ok=True)
     html = render_html(report)
+    explicit = renderer is not None
     mode = resolve_renderer(renderer)
 
     if mode == "html":
@@ -55,7 +56,7 @@ def export_report_pdf(
             _html_to_chromium_pdf(html, out)
             return {"pdf_path": str(out), "renderer": "html", "bytes": out.stat().st_size}
         except Exception as exc:
-            if mode != "html":
+            if explicit:
                 raise
             _reportlab_pdf(report, out, note=f"Chromium unavailable ({exc}); reportlab fallback.")
             return {"pdf_path": str(out), "renderer": "reportlab", "bytes": out.stat().st_size}

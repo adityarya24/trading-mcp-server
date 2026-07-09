@@ -6,7 +6,7 @@ from typing import Any
 import pytest
 
 from market.providers.base import MarketDataProvider
-from services.trading_mcp.models import Candle, Quote
+from market.models import Candle, Quote
 
 
 class FakeProvider(MarketDataProvider):

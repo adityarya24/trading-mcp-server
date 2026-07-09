@@ -4,6 +4,7 @@ from __future__ import annotations
 import uuid
 from datetime import datetime
 from pathlib import Path
+from zoneinfo import ZoneInfo
 from typing import Any
 
 from market.providers.nse import fetch_fii_dii_trade
@@ -13,7 +14,7 @@ from market.reports.pdf_export import export_report_pdf
 from market.status import compute_market_status
 
 from .models import Quote, Trade
-from .storage import default_db_path, insert_trade, query_trades
+from .storage import default_db_path, insert_trade, query_trades, trading_mcp_home
 from .storage_briefs import get_brief, insert_brief, update_brief_pdf_path
 
 from market.providers.base import MarketDataProvider
@@ -64,7 +65,7 @@ def log_trade_tool(
 ) -> dict[str, Any]:
     db = Path(db_path) if db_path else default_db_path()
     trade_id = f"trd-{uuid.uuid4().hex[:12]}"
-    now = datetime.now().isoformat(timespec="seconds")
+    now = datetime.now(ZoneInfo("Asia/Kolkata")).replace(tzinfo=None).isoformat(timespec="seconds")
 
     trade = Trade(
         trade_id=trade_id,
@@ -136,7 +137,11 @@ def export_report_pdf_tool(
     if not stored:
         raise ValueError(f"Unknown brief_id: {brief_id}")
     report = stored["report"]
-    out = Path(output_path) if output_path else Path("data/reports") / f"{brief_id}.pdf"
+    out = (
+        Path(output_path)
+        if output_path
+        else trading_mcp_home() / "reports" / f"{brief_id}.pdf"
+    )
     meta = export_report_pdf(report, out, renderer=renderer)
     update_brief_pdf_path(db, brief_id, meta["pdf_path"])
     return {"brief_id": brief_id, "status": "exported", **meta}

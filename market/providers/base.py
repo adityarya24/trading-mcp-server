@@ -8,7 +8,7 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 
-from services.trading_mcp.models import Candle, Quote
+from market.models import Candle, Quote
 
 
 class MarketDataProvider(ABC):

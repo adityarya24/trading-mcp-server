@@ -2,7 +2,7 @@
 """Smoke-test the Trading MCP server via stdio.
 
 Spawns the server as a child process, initialises the MCP session,
-and calls all 4 tools to verify they return valid JSON.
+and exercises the registered MCP tools (quotes, journal, briefs, PDF).
 
 Usage::
 

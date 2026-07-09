@@ -31,14 +31,14 @@ class FakeProvider(MarketDataProvider):
             ("2026-07-09T00:00:00", 23920, 24100, 23900, 24000),
         ]
         candles: list[Candle] = []
-        for ts, o, h, l, c in base[-count:]:
+        for ts, o, h, low, c in base[-count:]:
             candles.append(
                 Candle(
                     symbol=symbol,
                     timestamp=ts,
                     open=float(o),
                     high=float(h),
-                    low=float(l),
+                    low=float(low),
                     close=float(c),
                     volume=100,
                     interval=interval,

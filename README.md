@@ -20,16 +20,17 @@ python -m services.trading_mcp          # stdio MCP server
 python scripts/smoke_mcp_client.py      # integration smoke (network)
 ```
 
-## MCP tools (v0.2)
+## MCP tools (v0.2.1)
 
 | Tool | Description |
 |------|-------------|
 | `get_quote` | LTP / OHLC / change% (Yahoo Finance) |
 | `get_market_status` | NSE open, holiday, expiry, VIX |
 | `get_fii_dii_flow` | NSE provisional FII/DII (₹ Cr) |
+| `get_option_chain` | Max pain, PCR, OI highlights (Yahoo; Nifty may be unavailable) |
 | `log_trade` / `get_journal` | SQLite trade journal |
-| `generate_morning_brief` | Pre-market JSON + `brief_id` |
-| `generate_eod_review` | EOD JSON + `brief_id` |
+| `generate_morning_brief` | Pre-market JSON + GIFT/opening outlook + `brief_id` |
+| `generate_eod_review` | EOD JSON + sectors/movers + `brief_id` |
 | `export_report_pdf` | PDF via HTML/Chromium or reportlab fallback |
 
 ## PDF rendering

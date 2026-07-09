@@ -12,9 +12,10 @@ def _reset_provider():
 
 def test_tool_registry_count():
     names = list_tool_names()
-    assert len(names) == 8
+    assert len(names) == 9
     assert "generate_morning_brief" in names
     assert "export_report_pdf" in names
+    assert "get_option_chain" in names
 
 
 def test_log_and_journal_roundtrip(tmp_path, monkeypatch):

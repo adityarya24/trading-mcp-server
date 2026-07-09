@@ -14,7 +14,13 @@ SAMPLE = {
         "global_cues": [],
         "fii_dii": {"fii": {"date": "08-Jul-2026", "net_value_cr": 1.0}, "dii": {"net_value_cr": 2.0}},
         "technical_levels": {"levels": {"pivot": 24000}, "dma_20": 24100, "dma_50": 23800},
-        "gift_nifty_note": "note",
+        "opening_outlook": {
+            "gift_nifty": {"ltp": 24010, "proxy_note": "proxy"},
+            "nifty_spot_reference": 23900,
+            "premium_discount_pts": 110,
+            "expected_open_range": {"low": 23950, "high": 24050},
+            "gap_assessment": "mild_positive_gap",
+        },
     },
     "disclaimer": "For informational purposes only.",
 }

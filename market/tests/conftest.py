@@ -46,6 +46,13 @@ class FakeProvider(MarketDataProvider):
             )
         return candles
 
+    def get_gift_nifty_quote(self) -> dict[str, Any]:
+        q = self.get_quote("GIFT NIFTY")
+        return {**q.to_dict(), "is_proxy": True, "proxy_note": "test", "yahoo_ticker": "^NSEI"}
+
+    def get_option_chain(self, symbol: str, expiry: str | None = None) -> dict[str, Any]:
+        return {"symbol": symbol, "available": False, "message": "test", "max_pain": None, "pcr": None, "strikes": []}
+
 
 @pytest.fixture
 def fake_provider() -> FakeProvider:

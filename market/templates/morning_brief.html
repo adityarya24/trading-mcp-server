@@ -25,6 +25,18 @@
     {% endfor %}
   </table>
 
+  <h2>GIFT Nifty & Opening Outlook</h2>
+  {% set oo = report.sections.opening_outlook %}
+  <table>
+    <tr><th>Metric</th><th>Value</th></tr>
+    <tr><td>GIFT Nifty LTP (proxy)</td><td>{{ oo.gift_nifty.ltp }}</td></tr>
+    <tr><td>Nifty reference</td><td>{{ oo.nifty_spot_reference }}</td></tr>
+    <tr><td>Premium / discount (pts)</td><td>{{ oo.premium_discount_pts }}</td></tr>
+    <tr><td>Expected open range</td><td>{{ oo.expected_open_range.low }} – {{ oo.expected_open_range.high }}</td></tr>
+    <tr><td>Gap assessment</td><td>{{ oo.gap_assessment }}</td></tr>
+  </table>
+  <p class="meta">{{ oo.gift_nifty.proxy_note }}</p>
+
   <h2>Global Cues</h2>
   <table>
     <tr><th>Label</th><th>LTP</th><th>Change%</th></tr>
@@ -58,7 +70,19 @@
   <p>Insufficient history for pivot/DMA.</p>
   {% endif %}
 
-  <p class="meta">{{ report.sections.gift_nifty_note }}</p>
+  {% if report.sections.option_chain_highlights %}
+  <h2>Option Chain Highlights</h2>
+  {% set oc = report.sections.option_chain_highlights %}
+  {% if not oc.available %}<p>{{ oc.message }}</p>{% else %}
+  <table>
+    <tr><th>Metric</th><th>Value</th></tr>
+    <tr><td>Expiry</td><td>{{ oc.expiry }}</td></tr>
+    <tr><td>Max Pain</td><td>{{ oc.max_pain }}</td></tr>
+    <tr><td>PCR</td><td>{{ oc.pcr }}</td></tr>
+  </table>
+  {% endif %}
+  {% endif %}
+
   <p class="disclaimer">{{ report.disclaimer }}</p>
 </body>
 </html>

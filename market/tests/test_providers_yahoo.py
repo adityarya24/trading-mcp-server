@@ -9,6 +9,7 @@ from market.providers.yahoo import SYMBOL_MAP, YahooFinanceProvider
 def test_validate_symbol_maps_nifty():
     p = YahooFinanceProvider()
     assert p.validate_symbol("nifty 50") == "^NSEI"
+    assert SYMBOL_MAP["GIFT NIFTY"] == "^NSEI"
     assert SYMBOL_MAP["XAUUSD"] == "GC=F"
 
 
@@ -55,3 +56,27 @@ def test_get_ohlc_from_history(monkeypatch):
     candles = YahooFinanceProvider().get_ohlc("NIFTY 50", count=2)
     assert len(candles) == 2
     assert candles[-1].close == 24000.0
+
+
+def test_get_gift_nifty_quote_proxy(monkeypatch):
+    class FakeTicker:
+        def __init__(self, _s):
+            self.info = {
+                "preMarketPrice": 24010.0,
+                "previousClose": 23900.0,
+                "currency": "INR",
+            }
+
+    monkeypatch.setattr("market.providers.yahoo.yf.Ticker", FakeTicker)
+    out = YahooFinanceProvider().get_gift_nifty_quote()
+    assert out["ltp"] == 24010.0
+    assert out["is_proxy"] is True
+
+
+def test_get_option_chain_empty(monkeypatch):
+    class FakeTicker:
+        options = []
+
+    monkeypatch.setattr("market.providers.yahoo.yf.Ticker", lambda _s: FakeTicker())
+    out = YahooFinanceProvider().get_option_chain("NIFTY 50")
+    assert out["available"] is False

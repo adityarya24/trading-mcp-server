@@ -36,7 +36,7 @@ async def run_smoke() -> None:
             # 1. List tools
             tools_result = await session.list_tools()
             tool_names = [t.name for t in tools_result.tools]
-            assert len(tool_names) >= 8, tool_names
+            assert len(tool_names) >= 9, tool_names
             print(f"✓ list_tools: {len(tool_names)} tools registered — {tool_names}")
 
             # 2. get_market_status
@@ -90,13 +90,22 @@ async def run_smoke() -> None:
             assert trade_id in logged_ids, f"Logged trade {trade_id} not found in journal!"
             print(f"  ↳ verified: trade {trade_id} appears in journal")
 
-            # 8. FII/DII
+            # 8. GIFT Nifty quote
+            result = await session.call_tool("get_quote", {"symbol": "GIFT NIFTY"})
+            gift = json.loads(result.content[0].text)
+            print(f"✓ get_quote(GIFT NIFTY): LTP={gift.get('ltp')}")
+
+            result = await session.call_tool("get_option_chain", {"symbol": "NIFTY 50"})
+            chain = json.loads(result.content[0].text)
+            print(f"✓ get_option_chain(NIFTY): available={chain.get('available')}")
+
+            # 9. FII/DII
             result = await session.call_tool("get_fii_dii_flow", {})
             fii = json.loads(result.content[0].text)
             assert "participants" in fii or "error" not in fii
             print(f"\n✓ get_fii_dii_flow: session={fii.get('session_date')}")
 
-            # 9. Morning brief + PDF (reportlab — no Chromium required in CI)
+            # 10. Morning brief + PDF (reportlab — no Chromium required in CI)
             result = await session.call_tool("generate_morning_brief", {})
             brief = json.loads(result.content[0].text)
             brief_id = brief["brief_id"]

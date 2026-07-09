@@ -17,6 +17,16 @@ from services.trading_mcp.storage import default_db_path, query_trades
 from market.status import compute_market_status
 
 
+def _sector_performance(sectors: list[dict[str, Any]]) -> dict[str, Any]:
+    ranked = [s for s in sectors if s.get("change_pct") is not None]
+    ranked.sort(key=lambda s: s["change_pct"], reverse=True)
+    return {
+        "top_3": ranked[:3],
+        "bottom_3": list(reversed(ranked[-3:])) if len(ranked) >= 3 else ranked[:0],
+        "all": sectors,
+    }
+
+
 def build_eod_review(
     report_date: str | None = None,
     db_path: Path | str | None = None,
@@ -42,6 +52,8 @@ def build_eod_review(
     }
 
     status = compute_market_status(provider)
+    sectors = provider.get_sector_indices()
+    movers = provider.get_nifty50_movers(top_n=5)
 
     return {
         "report_type": "eod_review",
@@ -51,6 +63,8 @@ def build_eod_review(
         "market_status": status,
         "sections": {
             "index_scorecard": scorecard,
+            "sector_performance": _sector_performance(sectors),
+            "top_movers": movers,
             "fii_dii": fii_dii,
             "journal": journal,
         },

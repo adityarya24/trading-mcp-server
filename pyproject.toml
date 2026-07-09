@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "trading-mcp"
-version = "0.2.0"
+version = "0.2.1"
 description = "Market intelligence MCP server — plug-and-play trading analyst for any MCP-compatible agent"
 requires-python = ">=3.11"
 dependencies = [
@@ -28,7 +28,7 @@ where = ["."]
 include = ["market*", "services*"]
 
 [tool.setuptools.package-data]
-market = ["config/*.yaml", "data/*.json", "templates/*.html", "templates/*.css"]
+market = ["config/*.yaml", "data/*.json", "data/nifty50_symbols.json", "templates/*.html", "templates/*.css"]
 
 [tool.pytest.ini_options]
 testpaths = ["market/tests"]

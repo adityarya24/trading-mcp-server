@@ -20,6 +20,28 @@
     {% endfor %}
   </table>
 
+  <h2>Sector Performance</h2>
+  {% set sp = report.sections.sector_performance %}
+  <h3>Top 3</h3>
+  <table><tr><th>Sector</th><th>Change%</th></tr>
+  {% for row in sp.top_3 %}<tr><td>{{ row.sector }}</td><td>{{ row.change_pct }}</td></tr>{% endfor %}
+  </table>
+  <h3>Bottom 3</h3>
+  <table><tr><th>Sector</th><th>Change%</th></tr>
+  {% for row in sp.bottom_3 %}<tr><td>{{ row.sector }}</td><td>{{ row.change_pct }}</td></tr>{% endfor %}
+  </table>
+
+  <h2>Top Movers (Nifty 50 universe)</h2>
+  {% set tm = report.sections.top_movers %}
+  <h3>Gainers</h3>
+  <table><tr><th>Symbol</th><th>LTP</th><th>Change%</th></tr>
+  {% for row in tm.gainers %}<tr><td>{{ row.symbol }}</td><td>{{ row.ltp }}</td><td>{{ row.change_pct }}</td></tr>{% endfor %}
+  </table>
+  <h3>Losers</h3>
+  <table><tr><th>Symbol</th><th>LTP</th><th>Change%</th></tr>
+  {% for row in tm.losers %}<tr><td>{{ row.symbol }}</td><td>{{ row.ltp }}</td><td>{{ row.change_pct }}</td></tr>{% endfor %}
+  </table>
+
   <h2>FII / DII</h2>
   {% set fii = report.sections.fii_dii %}
   {% if fii.error %}<p>{{ fii.error }}</p>{% else %}

@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from market.reports import morning_brief as mb_mod
 from market.reports import eod_review as eod_mod
+from market.tests.conftest import FakeProvider
 
 
 def test_build_morning_brief_structure(monkeypatch, fake_provider, sample_fii_dii_payload):
@@ -21,10 +22,18 @@ def test_build_morning_brief_structure(monkeypatch, fake_provider, sample_fii_di
     assert len(report["sections"]["market_pulse"]) == 4
     assert report["sections"]["technical_levels"]["levels"] is not None
     assert "disclaimer" in report
+    assert "opening_outlook" in report["sections"]
 
 
 def test_build_eod_review_includes_journal(monkeypatch, fake_provider, tmp_path):
-    monkeypatch.setattr(eod_mod, "YahooFinanceProvider", lambda: fake_provider)
+    class EodProvider(FakeProvider):
+        def get_sector_indices(self):
+            return [{"sector": "Nifty IT", "change_pct": 1.2, "ltp": 100}]
+
+        def get_nifty50_movers(self, top_n=5):
+            return {"gainers": [{"symbol": "TCS", "ltp": 1, "change_pct": 2}], "losers": [], "count": 1}
+
+    monkeypatch.setattr(eod_mod, "YahooFinanceProvider", EodProvider)
     monkeypatch.setattr(
         eod_mod,
         "fetch_fii_dii_trade",
@@ -43,3 +52,5 @@ def test_build_eod_review_includes_journal(monkeypatch, fake_provider, tmp_path)
     report = eod_mod.build_eod_review("2026-07-09", db_path=db)
     assert report["report_type"] == "eod_review"
     assert report["sections"]["journal"]["count"] == 1
+    assert "sector_performance" in report["sections"]
+    assert "top_movers" in report["sections"]

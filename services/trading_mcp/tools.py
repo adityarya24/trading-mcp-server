@@ -43,6 +43,13 @@ def get_fii_dii_flow_tool() -> dict[str, Any]:
     return fetch_fii_dii_trade()
 
 
+def get_option_chain_tool(symbol: str, expiry: str | None = None) -> dict[str, Any]:
+    provider = _resolve_provider()
+    if not hasattr(provider, "get_option_chain"):
+        raise RuntimeError("Active provider does not support option chains")
+    return provider.get_option_chain(symbol, expiry=expiry)
+
+
 def log_trade_tool(
     symbol: str,
     direction: str,
@@ -139,6 +146,7 @@ TOOLS: dict[str, Any] = {
     "get_quote": get_quote_tool,
     "get_market_status": get_market_status_tool,
     "get_fii_dii_flow": get_fii_dii_flow_tool,
+    "get_option_chain": get_option_chain_tool,
     "log_trade": log_trade_tool,
     "get_journal": get_journal_tool,
     "generate_morning_brief": generate_morning_brief_tool,

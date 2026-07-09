@@ -25,8 +25,37 @@ _GLOBAL_SYMBOLS = [
 ]
 
 
+def _gap_assessment(premium_pct: float | None) -> str:
+    if premium_pct is None:
+        return "unknown"
+    if premium_pct >= 0.5:
+        return "mild_positive_gap"
+    if premium_pct <= -0.5:
+        return "mild_negative_gap"
+    return "flat_to_mild"
+
+
+def _build_opening_outlook(provider: YahooFinanceProvider) -> dict[str, Any]:
+    gift = provider.get_gift_nifty_quote()
+    spot = provider.get_quote("NIFTY 50")
+    spot_ref = spot.prev_close or spot.ltp
+    gift_ltp = float(gift.get("ltp") or 0)
+    premium_pts = round(gift_ltp - spot_ref, 2) if spot_ref else None
+    premium_pct = round((premium_pts / spot_ref) * 100, 4) if spot_ref and premium_pts is not None else None
+    band = (spot_ref or 0) * 0.0025
+    expected_low = round(spot_ref + (premium_pts or 0) - band, 2) if spot_ref else None
+    expected_high = round(spot_ref + (premium_pts or 0) + band, 2) if spot_ref else None
+    return {
+        "gift_nifty": gift,
+        "nifty_spot_reference": spot_ref,
+        "premium_discount_pts": premium_pts,
+        "premium_discount_pct": premium_pct,
+        "expected_open_range": {"low": expected_low, "high": expected_high},
+        "gap_assessment": _gap_assessment(premium_pct),
+    }
+
+
 def build_morning_brief(report_date: str | None = None) -> dict[str, Any]:
-    """Assemble morning brief sections from free-tier data sources."""
     d = parse_report_date(report_date)
     provider = YahooFinanceProvider()
 
@@ -56,6 +85,11 @@ def build_morning_brief(report_date: str | None = None) -> dict[str, Any]:
         }
 
     status = compute_market_status(provider)
+    opening_outlook = _build_opening_outlook(provider)
+
+    options_section: dict[str, Any] | None = None
+    if status.get("today_expiry"):
+        options_section = provider.get_option_chain("NIFTY 50")
 
     return {
         "report_type": "morning_brief",
@@ -65,13 +99,11 @@ def build_morning_brief(report_date: str | None = None) -> dict[str, Any]:
         "market_status": status,
         "sections": {
             "market_pulse": market_pulse,
+            "opening_outlook": opening_outlook,
             "global_cues": global_cues,
             "fii_dii": fii_dii,
             "technical_levels": technical,
-            "gift_nifty_note": (
-                "GIFT Nifty not wired in v0.2 free pipeline; use Nifty futures/spot "
-                "quotes via get_quote when a paid feed is configured."
-            ),
+            "option_chain_highlights": options_section,
         },
         "disclaimer": SEBI_DISCLAIMER,
     }

@@ -22,7 +22,7 @@ from mcp.server.stdio import stdio_server
 from .tools import TOOLS
 
 SERVER_NAME = "trading-mcp"
-SERVER_VERSION = "0.2.0"
+SERVER_VERSION = "0.2.1"
 
 
 def list_tool_names() -> list[str]:
@@ -104,6 +104,19 @@ TOOL_DEFINITIONS: list[types.Tool] = [
         name="get_fii_dii_flow",
         description="Latest NSE provisional FII/FPI and DII cash-market net flows (₹ Cr). Analytics only.",
         inputSchema={"type": "object", "properties": {}, "additionalProperties": False},
+    ),
+    types.Tool(
+        name="get_option_chain",
+        description="Option chain analytics: max pain, PCR, highest call/put OI (Yahoo). Data only.",
+        inputSchema={
+            "type": "object",
+            "properties": {
+                "symbol": {"type": "string", "description": "e.g. NIFTY 50"},
+                "expiry": {"type": ["string", "null"], "description": "YYYY-MM-DD expiry"},
+            },
+            "required": ["symbol"],
+            "additionalProperties": False,
+        },
     ),
     types.Tool(
         name="generate_morning_brief",

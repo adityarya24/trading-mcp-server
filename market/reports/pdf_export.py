@@ -65,10 +65,36 @@ def export_report_pdf(
     return {"pdf_path": str(out), "renderer": "reportlab", "bytes": out.stat().st_size}
 
 
+def find_chromium_executable() -> str | None:
+    """Resolve a Chromium binary: env var first, then well-known local installs.
+
+    Returns None when nothing is found, in which case Playwright falls back to
+    its own managed Chromium (if installed)."""
+    env = os.environ.get("TRADING_CHROMIUM_EXECUTABLE")
+    if env:
+        return env
+    import glob
+
+    candidates = sorted(
+        glob.glob(os.path.expanduser("~/.agent-browser/browsers/chrome-*/chrome")),
+        reverse=True,
+    )
+    candidates += [
+        "/usr/bin/chromium",
+        "/usr/bin/chromium-browser",
+        "/usr/bin/google-chrome",
+        "/usr/bin/google-chrome-stable",
+    ]
+    for candidate in candidates:
+        if os.path.exists(candidate):
+            return candidate
+    return None
+
+
 def _html_to_chromium_pdf(html: str, output_path: Path) -> None:
     from playwright.sync_api import sync_playwright
 
-    executable = os.environ.get("TRADING_CHROMIUM_EXECUTABLE") or None
+    executable = find_chromium_executable()
     with sync_playwright() as p:
         launch_kwargs: dict[str, Any] = {"headless": True}
         if executable:

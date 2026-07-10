@@ -48,3 +48,19 @@ def test_explicit_html_renderer_raises_without_chromium(tmp_path: Path, monkeypa
     monkeypatch.setattr("market.reports.pdf_export._html_to_chromium_pdf", _boom)
     with pytest.raises(RuntimeError, match="no chromium"):
         export_report_pdf(SAMPLE, tmp_path / "x.pdf", renderer="html")
+
+def test_find_chromium_env_var_wins(monkeypatch):
+    from market.reports.pdf_export import find_chromium_executable
+
+    monkeypatch.setenv("TRADING_CHROMIUM_EXECUTABLE", "/custom/chrome")
+    assert find_chromium_executable() == "/custom/chrome"
+
+
+def test_find_chromium_probe_returns_existing_or_none(monkeypatch):
+    import os
+
+    from market.reports.pdf_export import find_chromium_executable
+
+    monkeypatch.delenv("TRADING_CHROMIUM_EXECUTABLE", raising=False)
+    found = find_chromium_executable()
+    assert found is None or os.path.exists(found)

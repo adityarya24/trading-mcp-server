@@ -10,18 +10,48 @@ SAMPLE = {
     "report_date": "2026-07-09",
     "generated_at": "2026-07-09 08:45:00 IST",
     "title": "Morning Brief",
+    "session_tag": "Previous close",
     "market_status": {"today_expiry": False, "expiry_instrument": None},
+    "upstox_error": None,
     "sections": {
-        "market_pulse": [{"symbol": "NIFTY 50", "ltp": 24000, "change_pct": 0.1, "prev_close": 23900}],
-        "global_cues": [],
-        "fii_dii": {"fii": {"date": "08-Jul-2026", "net_value_cr": 1.0}, "dii": {"net_value_cr": 2.0}},
+        "market_pulse": [
+            {
+                "symbol": "NIFTY 50",
+                "ltp": 24000.0,
+                "change": 50.0,
+                "change_pct": 0.21,
+                "prev_close": 23950.0,
+                "open": 23900.0,
+                "high": 24100.0,
+                "low": 23850.0,
+            }
+        ],
+        "global_cues": [{"label": "S&P 500", "ltp": 5000.0, "change_pct": -0.25}],
+        "fii_dii": {
+            "fii": {"date": "08-Jul-2026", "net_value_cr": 1.0},
+            "dii": {"date": "08-Jul-2026", "net_value_cr": 2.0},
+        },
         "technical_levels": {"levels": {"pivot": 24000}, "dma_20": 24100, "dma_50": 23800},
         "opening_outlook": {
-            "gift_nifty": {"ltp": 24010, "proxy_note": "proxy"},
-            "nifty_spot_reference": 23900,
-            "premium_discount_pts": 110,
-            "expected_open_range": {"low": 23950, "high": 24050},
-            "gap_assessment": "mild_positive_gap",
+            "gift_nifty": {"ltp": None, "available": False, "message": "GIFT Nifty: unavailable"},
+            "nifty_spot_reference": None,
+            "premium_discount_pts": None,
+            "expected_open_range": {"low": None, "high": None},
+            "gap_assessment": "unavailable",
+            "note": "GIFT Nifty: unavailable",
+        },
+        "option_chain_highlights": {
+            "NIFTY": {
+                "available": True,
+                "spot": 24000,
+                "expiry": "2026-07-10",
+                "days_to_expiry": 1,
+                "pcr": 0.85,
+                "max_pain": 24000,
+                "support": [{"strike": 23800}],
+                "resistance": [{"strike": 24200}],
+            },
+            "BANKNIFTY": {"available": False, "message": "Upstox unavailable"},
         },
     },
     "disclaimer": "For informational purposes only.",
@@ -64,3 +94,18 @@ def test_find_chromium_probe_returns_existing_or_none(monkeypatch):
     monkeypatch.delenv("TRADING_CHROMIUM_EXECUTABLE", raising=False)
     found = find_chromium_executable()
     assert found is None or os.path.exists(found)
+
+
+def test_pdf_one_page_when_renderer_available(tmp_path: Path):
+    """Render sample morning brief and assert single page if pypdf is present."""
+    pytest.importorskip("pypdf")
+    from pypdf import PdfReader
+
+    out = tmp_path / "onepage.pdf"
+    try:
+        meta = export_report_pdf(SAMPLE, out, renderer="html")
+    except Exception as exc:  # chromium missing etc.
+        pytest.skip(f"html renderer unavailable: {exc}")
+    assert out.exists()
+    reader = PdfReader(str(out))
+    assert len(reader.pages) == 1, f"expected 1 page, got {len(reader.pages)} ({meta})"

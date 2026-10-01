@@ -6,82 +6,121 @@
   <style>{% include 'report_base.css' %}</style>
 </head>
 <body>
-  <h1>🏹 Morning Brief</h1>
-  <p class="meta">{{ report.report_date }} · Generated {{ report.generated_at }}</p>
-  {% if report.market_status.today_expiry %}
-  <p><span class="badge">Expiry: {{ report.market_status.expiry_instrument }}</span></p>
+  <h1>Morning Brief</h1>
+  <p class="meta">
+    {{ report.report_date }} · Generated {{ report.generated_at }}
+    {% if report.session_tag == "Live" %}
+      <span class="badge badge-live">Live</span>
+    {% else %}
+      <span class="badge badge-prev">{{ report.session_tag or "Previous close" }}</span>
+    {% endif %}
+    {% if report.market_status.today_expiry %}
+      <span class="badge">Expiry: {{ report.market_status.expiry_instrument }}</span>
+    {% endif %}
+  </p>
+
+  {% if report.upstox_error %}
+  <p class="warn">{{ report.upstox_error }}</p>
   {% endif %}
 
-  <h2>Market Pulse</h2>
-  <table>
-    <tr><th>Symbol</th><th>LTP</th><th>Change%</th><th>Prev Close</th></tr>
+  <h2>Indices</h2>
+  <table class="compact">
+    <tr><th>Symbol</th><th>LTP</th><th>Change</th><th>Change%</th><th>Prev Close</th><th>O</th><th>H</th><th>L</th></tr>
     {% for row in report.sections.market_pulse %}
     <tr>
       <td>{{ row.symbol }}</td>
-      <td>{{ row.ltp }}</td>
-      <td>{{ row.change_pct }}</td>
-      <td>{{ row.prev_close }}</td>
+      <td>{{ "{:,.2f}".format(row.ltp) if row.ltp is not none else "—" }}</td>
+      <td class="{{ 'pos' if (row.change or 0) >= 0 else 'neg' }}">
+        {{ "%+.2f"|format(row.change) if row.change is not none else "—" }}
+      </td>
+      <td class="{{ 'pos' if (row.change_pct or 0) >= 0 else 'neg' }}">
+        {{ "%+.2f"|format(row.change_pct) ~ "%" if row.change_pct is not none else "—" }}
+      </td>
+      <td>{{ "{:,.2f}".format(row.prev_close) if row.prev_close is not none else "—" }}</td>
+      <td>{{ "{:,.2f}".format(row.open) if row.open is not none else "—" }}</td>
+      <td>{{ "{:,.2f}".format(row.high) if row.high is not none else "—" }}</td>
+      <td>{{ "{:,.2f}".format(row.low) if row.low is not none else "—" }}</td>
     </tr>
     {% endfor %}
   </table>
 
-  <h2>GIFT Nifty & Opening Outlook</h2>
-  {% set oo = report.sections.opening_outlook %}
-  <table>
-    <tr><th>Metric</th><th>Value</th></tr>
-    <tr><td>GIFT Nifty LTP (proxy)</td><td>{{ oo.gift_nifty.ltp }}</td></tr>
-    <tr><td>Nifty reference</td><td>{{ oo.nifty_spot_reference }}</td></tr>
-    <tr><td>Premium / discount (pts)</td><td>{{ oo.premium_discount_pts }}</td></tr>
-    <tr><td>Expected open range</td><td>{{ oo.expected_open_range.low }} – {{ oo.expected_open_range.high }}</td></tr>
-    <tr><td>Gap assessment</td><td>{{ oo.gap_assessment }}</td></tr>
-  </table>
-  <p class="meta">{{ oo.gift_nifty.proxy_note }}</p>
+  <h2>Option chain</h2>
+  {% set oc = report.sections.option_chain_highlights or {} %}
+  <div class="grid-2">
+    {% for key, title in [("NIFTY", "Nifty"), ("BANKNIFTY", "Bank Nifty")] %}
+    {% set block = oc.get(key) if oc is mapping else none %}
+    <div>
+      <h3>{{ title }}</h3>
+      {% if not block or not block.available %}
+        <p class="muted">{{ (block.message if block else "unavailable") }}</p>
+      {% else %}
+      <table class="compact">
+        <tr><th>Metric</th><th>Value</th></tr>
+        <tr><td>Spot</td><td>{{ "{:,.2f}".format(block.spot) if block.spot is not none else "—" }}</td></tr>
+        <tr><td>Expiry</td><td>{{ block.expiry }}{% if block.days_to_expiry is not none %} ({{ block.days_to_expiry }}d){% endif %}</td></tr>
+        <tr><td>PCR</td><td>{{ "%.2f"|format(block.pcr) if block.pcr is not none else "—" }}</td></tr>
+        <tr><td>Max pain</td><td>{{ "{:,.0f}".format(block.max_pain) if block.max_pain is not none else "—" }}</td></tr>
+        <tr><td>Support (PE OI)</td>
+          <td>{% for s in block.support[:3] %}{{ "{:,.0f}".format(s.strike) }}{% if not loop.last %}, {% endif %}{% else %}—{% endfor %}</td>
+        </tr>
+        <tr><td>Resistance (CE OI)</td>
+          <td>{% for s in block.resistance[:3] %}{{ "{:,.0f}".format(s.strike) }}{% if not loop.last %}, {% endif %}{% else %}—{% endfor %}</td>
+        </tr>
+      </table>
+      {% endif %}
+    </div>
+    {% endfor %}
+  </div>
 
-  <h2>Global Cues</h2>
-  <table>
+  <h2>GIFT Nifty</h2>
+  {% set oo = report.sections.opening_outlook or {} %}
+  <p class="muted">{{ oo.note or oo.gift_nifty.message or "GIFT Nifty: unavailable" }}</p>
+
+  <h2>Global cues</h2>
+  <table class="compact">
     <tr><th>Label</th><th>LTP</th><th>Change%</th></tr>
     {% for row in report.sections.global_cues %}
-    <tr><td>{{ row.label }}</td><td>{{ row.ltp }}</td><td>{{ row.change_pct }}</td></tr>
+    <tr>
+      <td>{{ row.label }}</td>
+      <td>{{ "{:,.2f}".format(row.ltp) if row.ltp is not none else "—" }}</td>
+      <td class="{{ 'pos' if (row.change_pct or 0) >= 0 else 'neg' }}">
+        {{ "%+.2f"|format(row.change_pct) ~ "%" if row.change_pct is not none else "—" }}
+      </td>
+    </tr>
     {% endfor %}
   </table>
 
-  <h2>FII / DII (NSE provisional)</h2>
-  {% set fii = report.sections.fii_dii %}
-  {% if fii.error %}
-  <p>{{ fii.error }}</p>
-  {% else %}
-  <table>
-    <tr><th>Participant</th><th>Session</th><th>Net (₹ Cr)</th></tr>
-    {% if fii.fii %}<tr><td>FII/FPI</td><td>{{ fii.fii.date }}</td><td>{{ fii.fii.net_value_cr }}</td></tr>{% endif %}
-    {% if fii.dii %}<tr><td>DII</td><td>{{ fii.dii.date }}</td><td>{{ fii.dii.net_value_cr }}</td></tr>{% endif %}
-  </table>
-  {% endif %}
-
-  <h2>Technical Levels (Nifty)</h2>
-  {% set tech = report.sections.technical_levels %}
-  {% if tech.levels %}
-  <table>
-    <tr><th>Level</th><th>Value</th></tr>
-    {% for k, v in tech.levels.items() %}<tr><td>{{ k }}</td><td>{{ v }}</td></tr>{% endfor %}
-    <tr><td>20 DMA</td><td>{{ tech.dma_20 }}</td></tr>
-    <tr><td>50 DMA</td><td>{{ tech.dma_50 }}</td></tr>
-  </table>
-  {% else %}
-  <p>Insufficient history for pivot/DMA.</p>
-  {% endif %}
-
-  {% if report.sections.option_chain_highlights %}
-  <h2>Option Chain Highlights</h2>
-  {% set oc = report.sections.option_chain_highlights %}
-  {% if not oc.available %}<p>{{ oc.message }}</p>{% else %}
-  <table>
-    <tr><th>Metric</th><th>Value</th></tr>
-    <tr><td>Expiry</td><td>{{ oc.expiry }}</td></tr>
-    <tr><td>Max Pain</td><td>{{ oc.max_pain }}</td></tr>
-    <tr><td>PCR</td><td>{{ oc.pcr }}</td></tr>
-  </table>
-  {% endif %}
-  {% endif %}
+  <div class="grid-2">
+    <div>
+      <h2>FII / DII (NSE provisional)</h2>
+      {% set fii = report.sections.fii_dii %}
+      {% if fii.error %}
+      <p class="muted">{{ fii.error }}</p>
+      {% else %}
+      <table class="compact">
+        <tr><th>Participant</th><th>Session</th><th>Net (₹ Cr)</th></tr>
+        {% if fii.fii %}<tr><td>FII/FPI</td><td>{{ fii.fii.date }}</td>
+          <td class="{{ 'pos' if (fii.fii.net_value_cr or 0) >= 0 else 'neg' }}">{{ fii.fii.net_value_cr | cr }}</td></tr>{% endif %}
+        {% if fii.dii %}<tr><td>DII</td><td>{{ fii.dii.date }}</td>
+          <td class="{{ 'pos' if (fii.dii.net_value_cr or 0) >= 0 else 'neg' }}">{{ fii.dii.net_value_cr | cr }}</td></tr>{% endif %}
+      </table>
+      {% endif %}
+    </div>
+    <div>
+      <h2>Technicals (Nifty)</h2>
+      {% set tech = report.sections.technical_levels %}
+      {% if tech.levels %}
+      <table class="compact">
+        <tr><th>Level</th><th>Value</th></tr>
+        {% for k, v in tech.levels.items() %}<tr><td>{{ k }}</td><td>{{ v | price }}</td></tr>{% endfor %}
+        {% if tech.dma_20 is not none %}<tr><td>20 DMA</td><td>{{ tech.dma_20 | price }}</td></tr>{% endif %}
+        {% if tech.dma_50 is defined and tech.dma_50 is not none %}<tr><td>50 DMA</td><td>{{ tech.dma_50 | price }}</td></tr>{% endif %}
+      </table>
+      {% else %}
+      <p class="muted">Insufficient history for pivot/DMA.</p>
+      {% endif %}
+    </div>
+  </div>
 
   <p class="disclaimer">{{ report.disclaimer }}</p>
 </body>

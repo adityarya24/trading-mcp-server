@@ -6,16 +6,21 @@ import os
 from pathlib import Path
 from typing import Any
 
+from market.reports.common import fmt_pct, fmt_price, fmt_signed_cr
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 
 _TEMPLATES = Path(__file__).resolve().parent.parent / "templates"
 
 
 def _template_env() -> Environment:
-    return Environment(
+    env = Environment(
         loader=FileSystemLoader(str(_TEMPLATES)),
         autoescape=select_autoescape(["html", "xml"]),
     )
+    env.filters["price"] = fmt_price
+    env.filters["cr"] = fmt_signed_cr
+    env.filters["pct"] = fmt_pct
+    return env
 
 
 def _template_name(report_type: str) -> str:
